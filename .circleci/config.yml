@@ -21,10 +21,10 @@ commands:
       - run:
           name: run jest test
           command: npm run test
-      - store_artifacts:
-          path: test-results.xml         
       - store_test_results:
-          path: test-results.xml
+          path: ./reports/junit/
+      - store_artifacts:
+          path: ./reports/junit
 
 
   build_and_deploy_gh:
