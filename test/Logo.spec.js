@@ -7,3 +7,9 @@ describe('Logo', () => {
     expect(wrapper.vm).toBeTruthy()
   })
 })
+
+describe('simple test', () => {
+  test('simple add', () => {
+        expect(2+2).toBe(4);
+  })
+})
