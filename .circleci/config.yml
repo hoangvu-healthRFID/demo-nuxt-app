@@ -41,7 +41,7 @@ commands:
 
       - add_ssh_keys:
           fingerprints:
-            - "00:ed:6c:b8:24:c4:b4:b7:91:f8:74:ff:4a:ce:c1:b3"
+            - "54:33:d2:9a:5d:b5:27:68:59:05:48:c3:48:bb:e9:b9"
       - run:
           name: Deploy docs to gh-pages branch
           command: './node_modules/.bin/gh-pages --dotfiles --message "[skip ci] Updates" -d dist'
