@@ -35,7 +35,7 @@ commands:
       - run:
           name: Install and configure dependencies
           command: |
-            npm ins tall gh-pages --save-dev
+            npm install gh-pages --save-dev
             git config user.email "hoang.vu@healthrfid.com"
             git config user.name "Hoang Vu"
 
