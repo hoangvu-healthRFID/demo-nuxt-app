@@ -34,7 +34,11 @@ commands:
           command: npm run generate:gh-pages
       - run:
           name: Install and configure dependencies
-          command: npm install gh-pages --save-dev
+          command: |
+            npm ins tall gh-pages --save-dev
+            git config user.email "hoang.vu@healthrfid.com"
+            git config user.name "Hoang Vu"
+
       - add_ssh_keys:
           fingerprints:
             - "00:ed:6c:b8:24:c4:b4:b7:91:f8:74:ff:4a:ce:c1:b3"
