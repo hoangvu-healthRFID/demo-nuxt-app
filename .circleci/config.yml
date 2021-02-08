@@ -22,13 +22,12 @@ commands:
           name: run jest test
           command: npm run test
       - store_artifacts:
-          path: test-results.xml
-          prefix: tests
+          path: test-results.xml         
       - store_test_results:
           path: test-results.xml
 
 
-  build_and_deploy_GH:
+  build_and_deploy_gh:
     steps:
       - run:
           name: build project
@@ -51,7 +50,7 @@ jobs:
       - checkout
       - install_packages
       - test
-      - build_and_deploy_GH
+      - build_and_deploy_gh
 
 workflows:
   test_and_deploy_GH:
