@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   node: circleci/node@4.1.0
+  aws-ecr: circleci/aws-ecr@6.15.3
 
 
 commands:
@@ -46,6 +47,7 @@ commands:
           name: Deploy docs to gh-pages branch
           command: './node_modules/.bin/gh-pages --dotfiles --message "[skip ci] Updates" -d dist'
   
+  
 
 jobs:
   test_and_build:
@@ -55,6 +57,20 @@ jobs:
       - install_packages
       - test
       - build_and_deploy_gh
+  
+  deploy_ecr: 
+    executor: aws-ecr/default
+    step:
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          path: .
+          region: AWS_REGION
+          repo: circleci-ecr-orb-demo
+          tag: "$CIRCLE_SHA1"
 
 workflows:
   test_and_deploy_GH:
