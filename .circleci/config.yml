@@ -60,7 +60,7 @@ jobs:
   
   deploy_ecr: 
     executor: aws-ecr/default
-    step:
+    steps:
       - checkout
       - run:
           name: get tag number
