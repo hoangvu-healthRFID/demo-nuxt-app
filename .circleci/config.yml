@@ -92,6 +92,6 @@ jobs:
           tag: $TAG_NUMBER
 
 workflows:
-  test_and_deploy_GH:
+  deploy_ecr:
     jobs:
       - deploy_ecr
