@@ -72,7 +72,7 @@ jobs:
             if [[ $line == *version* ]]
             then
             echo $line
-            length=${#line}-15
+            length=${#line}-14
             tag=v${line:12:${length}}
             echo $tag
             fi
