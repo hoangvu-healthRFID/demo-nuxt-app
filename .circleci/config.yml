@@ -61,7 +61,26 @@ jobs:
   deploy_ecr: 
     executor: aws-ecr/default
     step:
+      - checkout
+      - run:
+          name: get tag number
+          command: |
+            tag=""
+            file="./config/config.js"
+            while IFS= read line
+            do
+            if [[ $line == *version* ]]
+            then
+            echo $line
+            length=${#line}-15
+            tag=v${line:12:${length}}
+            echo $tag
+            fi
+            done <"$file"
+            echo "export TAG_NUMBER=$tag-$CIRCLE_BRANCH" >> $BASH_ENV
+            source $BASH_ENV
       - aws-ecr/build-and-push-image:
+          checkout: false
           account-url: AWS_ECR_ACCOUNT_URL
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
@@ -70,9 +89,9 @@ jobs:
           path: .
           region: AWS_REGION
           repo: circleci-ecr-orb-demo
-          tag: "$CIRCLE_SHA1"
+          tag: $TAG_NUMBER
 
 workflows:
   test_and_deploy_GH:
     jobs:
-      - test_and_build
+      - deploy_ecr
