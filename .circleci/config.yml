@@ -79,6 +79,22 @@ jobs:
           region: AWS_REGION
           repo: circleci-ecr-orb-demo
           tag: $TAG_NUMBER
+      - persist_to_workspace:
+            root: .
+            paths:
+              - .
+
+  update-tag:
+    docker:
+      - image: 'cimg/python:3.9.1'
+    steps:
+      - attach_workspace:
+            at: .
+      - aws-ecs/update-service:
+          family: $ECS_FAMILY
+          cluster-name: $ECS_CLUSTER
+          service-name: $ECS_SERVICE_NAME
+          container-image-name-updates: 'container=$ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
 
 workflows:
   deploy_ecr:
@@ -87,13 +103,6 @@ workflows:
       - deploy_ecr:
           requires:
             - test_and_build
-      - aws-ecs/deploy-service-update:
-          aws-region: AWS_REGION          
-          aws-access-key-id: AWS_ACCESS_KEY_ID          
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          family: $ECS_FAMILY
-          cluster-name: $ECS_CLUSTER
-          service-name: $ECS_SERVICE_NAME
-          container-image-name-updates: 'container=$ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
+      - update-tag:
           requires:
             - deploy_ecr
