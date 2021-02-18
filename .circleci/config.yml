@@ -2,6 +2,7 @@ version: 2.1
 orbs:
   node: circleci/node@4.1.0
   aws-ecr: circleci/aws-ecr@6.15.3
+  aws-ecs: circleci/aws-ecs@2.0.0
 
 
 commands:
@@ -27,27 +28,15 @@ commands:
       - store_test_results:
           path: test-report.html
 
-
-  build_and_deploy_gh:
+  build:
     steps:
-      - run:
-          name: build project
-          command: npm run generate:gh-pages
-      - run:
-          name: Install and configure dependencies
-          command: |
-            npm install gh-pages --save-dev
-            git config user.email "hoang.vu@healthrfid.com"
-            git config user.name "Hoang Vu"
+      -run:
+        name: test build
+        command: npm run build
+      - store_artifacts:
+            path: ~/dist
+            destination: '/build'
 
-      - add_ssh_keys:
-          fingerprints:
-            - "54:33:d2:9a:5d:b5:27:68:59:05:48:c3:48:bb:e9:b9"
-      - run:
-          name: Deploy docs to gh-pages branch
-          command: './node_modules/.bin/gh-pages --dotfiles --message "[skip ci] Updates" -d dist'
-  
-  
 
 jobs:
   test_and_build:
@@ -56,8 +45,8 @@ jobs:
       - checkout
       - install_packages
       - test
-      - build_and_deploy_gh
-  
+      - build
+
   deploy_ecr: 
     executor: aws-ecr/default
     steps:
@@ -81,17 +70,35 @@ jobs:
             source $BASH_ENV
       - aws-ecr/build-and-push-image:
           checkout: false
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          account-url: $AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: $AWS_ACCESS_KEY_ID
+          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
           create-repo: true
           dockerfile: Dockerfile
           path: .
-          region: AWS_REGION
+          region: $AWS_REGION
           repo: circleci-ecr-orb-demo
           tag: $TAG_NUMBER
+  
+  update_service:
+    executor: aws-ecs/default
+    steps:
+      - aws-ecs/deploy-service-update:
+          aws-region: $AWS_REGION          
+          aws-access-key-id: $AWS_ACCESS_KEY_ID          
+          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          family: $ECS_FAMILY
+          cluster-name: $ECS_CLUSTER
+          service-name: $ECS_SERVICE_NAME
+          container-image-name-updates: 'container=$ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
 
 workflows:
   deploy_ecr:
     jobs:
-      - deploy_ecr
+      - test_and_build
+      - deploy_ecr:
+          require:
+            - test_and_build
+      - update_service:
+          require:
+            - deploy_ecr
