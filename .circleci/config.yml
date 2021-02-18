@@ -30,12 +30,12 @@ commands:
 
   build:
     steps:
-      -run:
-        name: test build
-        command: npm run build
+      - run:
+          name: test build
+          command: npm run build
       - store_artifacts:
-            path: ~/dist
-            destination: '/build'
+          path: ~/dist
+          destination: '/build'
 
 
 jobs:
@@ -70,35 +70,30 @@ jobs:
             source $BASH_ENV
       - aws-ecr/build-and-push-image:
           checkout: false
-          account-url: $AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: $AWS_ACCESS_KEY_ID
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           create-repo: true
           dockerfile: Dockerfile
           path: .
-          region: $AWS_REGION
+          region: AWS_REGION
           repo: circleci-ecr-orb-demo
           tag: $TAG_NUMBER
-  
-  update_service:
-    executor: aws-ecs/default
-    steps:
-      - aws-ecs/deploy-service-update:
-          aws-region: $AWS_REGION          
-          aws-access-key-id: $AWS_ACCESS_KEY_ID          
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-          family: $ECS_FAMILY
-          cluster-name: $ECS_CLUSTER
-          service-name: $ECS_SERVICE_NAME
-          container-image-name-updates: 'container=$ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
 
 workflows:
   deploy_ecr:
     jobs:
       - test_and_build
       - deploy_ecr:
-          require:
+          requires:
             - test_and_build
-      - update_service:
-          require:
+      - aws-ecs/deploy-service-update:
+          aws-region: AWS_REGION          
+          aws-access-key-id: AWS_ACCESS_KEY_ID          
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          family: ECS_FAMILY
+          cluster-name: ECS_CLUSTER
+          service-name: ECS_SERVICE_NAME
+          container-image-name-updates: 'container=ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
+          requires:
             - deploy_ecr
