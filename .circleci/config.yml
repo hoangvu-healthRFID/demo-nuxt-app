@@ -86,7 +86,11 @@ jobs:
           cluster-name: $ECS_CLUSTER
           service-name: $ECS_SERVICE_NAME
           container-image-name-updates: 'container=$ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
-      - run: echo $CCI_ORB_AWS_ECS_DEPLOYED_REVISION
+      - run:
+          name: Restart task
+          command: |
+            TASK_ID=`aws ecs list-tasks --desired-status "RUNNING" --cluster $ECS_CLUSTER | grep arn | sed 's/[ "]//g'`
+            AWS_PAGER=`aws ecs stop-task --cluster $ECS_CLUSTER --task $TASK_ID --reason "Restarting task due to new ECR image deployment"`
       
 
 workflows:
