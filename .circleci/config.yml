@@ -3,7 +3,7 @@ orbs:
   node: circleci/node@4.1.0
   aws-ecr: circleci/aws-ecr@6.15.3
   aws-ecs: circleci/aws-ecs@2.0.0
-
+  aws-cli: circleci/aws-cli@1.3
 
 commands:
   install_packages:
@@ -90,6 +90,10 @@ jobs:
     steps:
       - attach_workspace:
             at: .
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-region: AWS_REGION
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
       - aws-ecs/update-service:
           family: $ECS_FAMILY
           cluster-name: $ECS_CLUSTER
