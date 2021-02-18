@@ -80,6 +80,7 @@ jobs:
           repo: circleci-ecr-orb-demo
           tag: $TAG_NUMBER
       - aws-ecs/update-service:
+          force-new-deployment: true
           family: $ECS_FAMILY
           cluster-name: $ECS_CLUSTER
           service-name: $ECS_SERVICE_NAME
