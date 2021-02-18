@@ -91,9 +91,9 @@ workflows:
           aws-region: AWS_REGION          
           aws-access-key-id: AWS_ACCESS_KEY_ID          
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          family: ECS_FAMILY
-          cluster-name: ECS_CLUSTER
-          service-name: ECS_SERVICE_NAME
-          container-image-name-updates: 'container=ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
+          family: $ECS_FAMILY
+          cluster-name: $ECS_CLUSTER
+          service-name: $ECS_SERVICE_NAME
+          container-image-name-updates: 'container=$ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
           requires:
             - deploy_ecr
