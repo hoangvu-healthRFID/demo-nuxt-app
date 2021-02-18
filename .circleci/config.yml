@@ -63,6 +63,7 @@ jobs:
             echo $line
             length=${#line}-14
             tag=v${line:12:${length}}
+            tag=${tag// /_}
             echo $tag
             fi
             done <"$file"
@@ -85,6 +86,8 @@ jobs:
           cluster-name: $ECS_CLUSTER
           service-name: $ECS_SERVICE_NAME
           container-image-name-updates: 'container=$ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
+      - run: echo CCI_ORB_AWS_ECS_DEPLOYED_REVISION
+      
 
 workflows:
   deploy_ecr:
