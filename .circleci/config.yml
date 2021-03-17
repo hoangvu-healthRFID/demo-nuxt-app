@@ -7,14 +7,18 @@ orbs:
 
 commands:
   install_packages:
+    parameters:
+      dir:
+        default: "./package-lock.json"
+        type: string
     steps:
       - restore_cache:
-          key: dependency-cache-{{ checksum "./config/config.js" }}
+          key: dependency-cache-{{ checksum <<parameters.dir>> }}
       - run:
           name: install-packages
           command: npm install
       - save_cache:
-          key: dependency-cache-{{ checksum "./config/config.js" }}
+          key: dependency-cache-{{ checksum <<parameters.dir>> }}
           paths:
             - ./node_modules
   
