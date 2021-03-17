@@ -12,13 +12,14 @@ commands:
         default: "./package-lock.json"
         type: string
     steps:
+      - run: echo "Hello <<parameters.dir>>"
       - restore_cache:
           key: dependency-cache-{{ checksum "<<parameters.dir>>" }}
       - run:
           name: install-packages
           command: npm install
       - save_cache:
-          key: dependency-cache-{{ checksum <<parameters.dir>> }}
+          key: dependency-cache-{{ checksum "<<parameters.dir>>" }}
           paths:
             - ./node_modules
   
