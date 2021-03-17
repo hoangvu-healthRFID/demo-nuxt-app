@@ -13,7 +13,7 @@ commands:
         type: string
     steps:
       - restore_cache:
-          key: dependency-cache-{{ checksum <<parameters.dir>> }}
+          key: dependency-cache-{{ checksum \"<<parameters.dir>>\" }}
       - run:
           name: install-packages
           command: npm install
