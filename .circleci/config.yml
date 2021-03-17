@@ -9,12 +9,12 @@ commands:
   install_packages:
     steps:
       - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+          key: dependency-cache-{{ checksum "./config/config.js" }}
       - run:
           name: install-packages
           command: npm install
       - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+          key: dependency-cache-{{ checksum "./config/config.js" }}
           paths:
             - ./node_modules
   
