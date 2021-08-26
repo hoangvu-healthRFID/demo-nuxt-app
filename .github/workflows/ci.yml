@@ -23,6 +23,11 @@ jobs:
       - name: Checkout 🛎
         uses: actions/checkout@master
 
+      - name: test creat folder
+        run: |
+          mkdir -p store/public/dist  
+          ls store
+
       - name: Setup node env 🏗
         uses: actions/setup-node@v2.1.2
         with:
