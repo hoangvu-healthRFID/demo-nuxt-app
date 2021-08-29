@@ -3,7 +3,7 @@
     <div>
       <Logo />
       <h1 class="title">
-        demo-nuxt-app
+        Testing update task 4
       </h1>
       <div class="links">
         <a

@@ -1,7 +1,115 @@
 version: 2.1
 orbs:
-  node: circleci/node@3.0.0
+  node: circleci/node@4.1.0
+  aws-ecr: circleci/aws-ecr@6.15.3
+  aws-ecs: circleci/aws-ecs@2.0.0
+  aws-code-deploy: circleci/aws-code-deploy@2.0.0
+
+commands:
+  install_packages:
+    parameters:
+      dir:
+        default: "./package-lock.json"
+        type: string
+    steps:
+      - run: echo "Hello <<parameters.dir>>"
+      - restore_cache:
+          key: dependency-cache-{{ checksum "<<parameters.dir>>" }}
+      - run:
+          name: install-packages
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "<<parameters.dir>>" }}
+          paths:
+            - ./node_modules
+  
+  test:
+    parameters:
+      dir:
+        default: "./"
+        type: string
+    steps:
+      - run:
+          name: run jest test
+          command: npm --prefix <<parameters.dir>> run test
+      - store_artifacts:
+          path: <<parameters.dir>>/test-report.html         
+      - store_test_results:
+          path: <<parameters.dir>>/test-report.html
+
+  build:
+    parameters:
+      dir:
+        default: "./"
+        type: string
+    steps:
+      - run:
+          name: test build
+          command: npm --prefix <<parameters.dir>> run build
+      - store_artifacts:
+          path: <<parameters.dir>>/dist
+          destination: '/build'
+
+
+jobs:
+  test_and_build:
+    executor: node/default
+    steps:
+      - checkout
+      - install_packages
+      - test
+      - build
+
+  deploy_and_update: 
+    executor: aws-ecr/default
+    steps:
+      - checkout
+      - run:
+          name: get tag number
+          command: |
+            tag=""
+            file="./config/config.js"
+            while IFS= read line
+            do
+            if [[ $line == *version* ]]
+            then
+            echo $line
+            length=${#line}-14
+            tag=v${line:12:${length}}
+            tag=${tag// /_}
+            echo $tag
+            fi
+            done <"$file"
+            echo "export TAG_NUMBER=$tag-$CIRCLE_BRANCH" >> $BASH_ENV
+            source $BASH_ENV
+      - aws-ecr/build-and-push-image:
+          checkout: false
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          path: .
+          region: AWS_REGION
+          repo: circleci-ecr-orb-demo
+          tag: $TAG_NUMBER
+      - aws-ecs/update-service:
+          force-new-deployment: true
+          family: $ECS_FAMILY
+          cluster-name: $ECS_CLUSTER
+          service-name: $ECS_SERVICE_NAME
+          container-image-name-updates: 'container=$ECS_CONTAINER_NAME,tag=$TAG_NUMBER'
+      - run:
+          name: Restart task
+          command: |
+            TASK_ID=`aws ecs list-tasks --desired-status "RUNNING" --cluster $ECS_CLUSTER | grep arn | sed 's/[ "]//g'`
+            AWS_PAGER=`aws ecs stop-task --cluster $ECS_CLUSTER --task $TASK_ID --reason "Restarting task due to new ECR image deployment"`
+      
+
 workflows:
-  node-tests:
+  deploy_ecr:
     jobs:
-      - node/test
+      - test_and_build
+      - deploy_and_update:
+          requires:
+            - test_and_build

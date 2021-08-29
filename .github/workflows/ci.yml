@@ -5,11 +5,6 @@ on:
     branches:
       - main
       - master
-  pull_request:
-    branches:
-      - main
-      - master
-
 jobs:
   ci:
     runs-on: ${{ matrix.os }}
@@ -23,22 +18,38 @@ jobs:
       - name: Checkout 🛎
         uses: actions/checkout@master
 
-      - name: Setup node env 🏗
-        uses: actions/setup-node@v2.1.2
-        with:
-          node-version: ${{ matrix.node }}
+      - name: get comment
+        id: get_comment
+        run: |
+          echo "${{ github.event.pull_request.title }}"
+          echo "${{ github.event.pull_request.message }}"
+          echo "${{github.event.commits[0].message}}"
+          echo ::set-output name=commit_message::$(git log --format=%B -n 1 HEAD)  
 
-      - name: Cache node_modules 📦
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+      - run: |
+          echo ${{ steps.get_comment.outputs.commit_message }}
 
-      - name: Install dependencies 👨🏻‍💻
-        run: npm ci
+      # - name: test creat folder
+      #   run: |
+      #     mkdir -p store/public/dist  
+      #     ls store
+
+      # - name: Setup node env 🏗
+      #   uses: actions/setup-node@v2.1.2
+      #   with:
+      #     node-version: ${{ matrix.node }}
+
+      # - name: Cache node_modules 📦
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.npm
+      #     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-node-
+
+      # - name: Install dependencies 👨🏻‍💻
+      #   run: npm ci
 
 
-      - name: Run tests 🧪
-        run: npm run test
+      # - name: Run tests 🧪
+      #   run: npm run test
