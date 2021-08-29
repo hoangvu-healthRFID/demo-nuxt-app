@@ -50,7 +50,7 @@ module.exports = {
 	envConfig: {
 		hostname: process.env.ENV_HOST,
 		port: process.env.ENV_PORT,
-		version: '2.0.0 Build 25',
+		version: '2.0.0 Build 26',
 		name: 'Healthrfid Controlpoint UI',
 		mobile: '1.0.0'
 	},
