@@ -23,27 +23,35 @@ jobs:
       - name: Checkout 🛎
         uses: actions/checkout@master
 
-      - name: test creat folder
+      - name: get comment
+        id: get_comment
         run: |
-          mkdir -p store/public/dist  
-          ls store
+          echo $(github.event.commits[0].message)
+          echo ::set-output name=commit_message::$(git log --format=%B -n 1 HEAD)  
 
-      - name: Setup node env 🏗
-        uses: actions/setup-node@v2.1.2
-        with:
-          node-version: ${{ matrix.node }}
+      - run: echo ${{ steps.get_comment.outputs.commit_message }}
 
-      - name: Cache node_modules 📦
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+      # - name: test creat folder
+      #   run: |
+      #     mkdir -p store/public/dist  
+      #     ls store
 
-      - name: Install dependencies 👨🏻‍💻
-        run: npm ci
+      # - name: Setup node env 🏗
+      #   uses: actions/setup-node@v2.1.2
+      #   with:
+      #     node-version: ${{ matrix.node }}
+
+      # - name: Cache node_modules 📦
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.npm
+      #     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-node-
+
+      # - name: Install dependencies 👨🏻‍💻
+      #   run: npm ci
 
 
-      - name: Run tests 🧪
-        run: npm run test
+      # - name: Run tests 🧪
+      #   run: npm run test
