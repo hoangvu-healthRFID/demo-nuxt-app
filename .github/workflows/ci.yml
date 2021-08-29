@@ -5,10 +5,6 @@ on:
     branches:
       - main
       - master
-  pull_request:
-    branches:
-      - main
-      - master
 
 jobs:
   ci:
@@ -22,14 +18,22 @@ jobs:
     steps:
       - name: Checkout 🛎
         uses: actions/checkout@master
+      
+          
+      - name: Logging
+        run: |
+          echo "${{toJSON(github.event)}}"  
 
       - name: get comment
         id: get_comment
         run: |
-          echo $(github.event.commits[0].message)
+          echo "${{github.event.commits[0].message}}"
           echo ::set-output name=commit_message::$(git log --format=%B -n 1 HEAD)  
+          echo ::set-output name=commit_message2::$(git log --format=%B -n 1 HEAD^2)
 
-      - run: echo ${{ steps.get_comment.outputs.commit_message }}
+      - run: |
+        echo ${{ steps.get_comment.outputs.commit_message }}
+        echo ${{ steps.get_comment.outputs.commit_message2 }}
 
       # - name: test creat folder
       #   run: |
