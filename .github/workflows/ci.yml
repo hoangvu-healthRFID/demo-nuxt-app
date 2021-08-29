@@ -29,11 +29,11 @@ jobs:
         run: |
           echo "${{github.event.commits[0].message}}"
           echo ::set-output name=commit_message::$(git log --format=%B -n 1 HEAD)  
-          echo ::set-output name=commit_message2::$(git log --format=%B -n 1 HEAD^2)
+          echo ::set-output name=commit_message_t::$(git log --format=%B -n 1 HEAD^2)
 
       - run: |
-        echo ${{ steps.get_comment.outputs.commit_message }}
-        echo ${{ steps.get_comment.outputs.commit_message2 }}
+          echo ${{ steps.get_comment.outputs.commit_message }}
+          echo ${{ steps.get_comment.outputs.commit_message_t }}
 
       # - name: test creat folder
       #   run: |
