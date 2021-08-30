@@ -1,0 +1,155 @@
+name: CI/CD for SIT branch
+
+on:
+  push:
+    branches:
+      - SIT
+
+jobs:
+  build_and_test_sit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4   
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '13.11.0'  
+
+      - name: Find cache node
+        uses: actions/cache@v2.1.6
+        id: cache
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: dependency-cache-${{ hashFiles ('package.json') }}
+
+      - name: Install dependency node
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Run jest test
+        run: npm run test
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: test_report
+          path: test-report.html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: coverage_report
+          path: coverage
+      
+      - name: Microsoft Teams Deploy Card
+        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        if: always()
+        with:
+          include-files: false
+          show-on-start: false
+          card-layout-exit: complete
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          webhook-uri: ${{ secrets.MS_TEAM_SIT }}    
+  # uncomment after having infrastructure
+  # build_and_release_sit:
+  #   runs-on: ubuntu-latest
+  #   needs: build_and_test_sit
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2.3.4    
+
+  #     - name: Generate tag name
+  #       run: |
+  #         tag=""
+  #         sprint=""
+  #         file="./config/config.js"
+  #         while IFS= read line
+  #         do
+  #           if [[ $line == *version* ]]
+  #           then
+  #             echo $line
+  #             length=${#line}-14
+  #             tag=${line:12:${length}}
+  #             tag=${tag// /_}
+  #             echo $tag
+  #           elif [[ $line == *sprint* ]]  
+  #           then
+  #             echo $line
+  #             length=${#line}-13
+  #             sprint=${line:11:${length}}
+  #             echo $sprint               
+  #           fi
+  #           done <"$file"
+  #           echo "TAG_NUMBER=$sprint-$tag-SIT" >> $GITHUB_ENV
+      
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ap-southeast-2   
+      
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v1    
+
+  #     - name: Build, tag, and push image to Amazon ECR
+  #       id: build-image
+  #       env:
+  #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #         ECR_REPOSITORY: ${{ secrets.ECR_REPO_SIT }}
+  #         IMAGE_TAG: ${{ env.TAG_NUMBER }}
+  #       run: |
+  #         # Build a docker container and
+  #         # push it to ECR so that it can
+  #         # be deployed to ECS.
+  #         docker build -f Dockerfile_sit -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+  #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  #         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        
+  #     - name: Download task definition
+  #       env:
+  #         ECS_FAMILY: ${{ secrets.ECS_FAMILY_SIT }}
+  #       run: |
+  #         aws ecs describe-task-definition --task-definition $ECS_FAMILY --query taskDefinition > task-definition.json
+
+  #     - name: Fill in the new image ID in the Amazon ECS task definition
+  #       id: task-def
+  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
+  #       with:
+  #         task-definition: task-definition.json
+  #         container-name: ${{ secrets.ECS_CONTAINER_NAME_SIT }}
+  #         image: ${{ steps.build-image.outputs.image }}
+
+  #     - name: Prepare appspec file
+  #       env:
+  #         ECS_CONTAINER_NAME: ${{ secrets.ECS_CONTAINER_NAME_SIT }}
+  #       run: |
+  #         sed -i "s/<CONTAINERNAME>/$ECS_CONTAINER_NAME/g" appspec.json
+
+  #     - name: Deploy Amazon ECS task definition
+  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+  #       with:
+  #         task-definition: ${{ steps.task-def.outputs.task-definition }}
+  #         service: ${{ secrets.ECS_SERVICE_NAME_SIT }}
+  #         cluster: ${{ secrets.ECS_CLUSTER_SIT }}
+  #         wait-for-service-stability: true
+  #         codedeploy-appspec: appspec.json
+  #         codedeploy-application: ${{ secrets.AWS_APP_NAME_SIT }}
+  #         codedeploy-deployment-group: ${{ secrets.AWS_DEPLOYMENT_GROUP_SIT }}
+      
+  #     - name: Microsoft Teams Deploy Card
+  #       uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+  #       if: always()
+  #       with:
+  #         include-files: false
+  #         show-on-start: false
+  #         card-layout-exit: complete
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         webhook-uri: ${{ secrets.MS_TEAM_SIT }}      

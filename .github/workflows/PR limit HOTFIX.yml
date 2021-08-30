@@ -1,0 +1,18 @@
+name: Limit PRs
+
+on:
+  pull_request:
+    branches:
+      - HOTFIX
+
+jobs:
+  limit_hotfix_pr:
+    runs-on: ubuntu-latest
+    name: Limits PR to HOTFIX
+    steps:
+      - name: Limit Pull Requests
+        id: limit_action
+        uses: LukBukkit/action-pr-limits@v1.1.1
+        with:
+          whitelist: |
+            UAT
