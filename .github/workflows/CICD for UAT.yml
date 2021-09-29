@@ -47,15 +47,15 @@ jobs:
           name: coverage_report
           path: coverage
       
-      - name: Microsoft Teams Deploy Card
-        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
-        if: always()
-        with:
-          include-files: false
-          show-on-start: false
-          card-layout-exit: complete
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          webhook-uri: ${{ secrets.MS_TEAM_UAT }}    
+      # - name: Microsoft Teams Deploy Card
+      #   uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+      #   if: always()
+      #   with:
+      #     include-files: false
+      #     show-on-start: false
+      #     card-layout-exit: complete
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     webhook-uri: ${{ secrets.MS_TEAM_UAT }}    
   
   # uncomment after has AWS infrastructure
   # build_and_release_uat:

@@ -11,5 +11,8 @@ describe('Logo', () => {
 describe('simple test', () => {
   test('simple add', () => {
         expect(2+2).toBe(4);
+  });
+  test('simple add 1', () => {
+    expect(2+1).toBe(5);
   })
 })

@@ -159,25 +159,24 @@ jobs:
           codedeploy-application: ${{ secrets.AWS_APP_NAME_PROD }}
           codedeploy-deployment-group: ${{ secrets.AWS_DEPLOYMENT_GROUP_PROD }}
       
-      - name: Microsoft Teams Deploy Card
-        if: "contains(steps.get_comment.outputs.commit_message, 'release')"
-        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
-        if: always()
-        with:
-          include-files: false
-          show-on-start: false
-          card-layout-exit: complete
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          webhook-uri: ${{ secrets.MS_TEAM_PROD }}      
+      # - name: Microsoft Teams Deploy Card
+      #   uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+      #   if: always()
+      #   with:
+      #     include-files: false
+      #     show-on-start: false
+      #     card-layout-exit: complete
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     webhook-uri: ${{ secrets.MS_TEAM_PROD }}      
 
-      - name: Release the tag
-        if: "contains(steps.get_comment.outputs.commit_message, 'release')"
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.TAG_NUMBER }}
-          release_name: Release ${{ env.TAG_NUMBER }}
-          draft: false
-          prerelease: false
+      # - name: Release the tag
+      #   if: "contains(steps.get_comment.outputs.commit_message, 'release')"
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ env.TAG_NUMBER }}
+      #     release_name: Release ${{ env.TAG_NUMBER }}
+      #     draft: false
+      #     prerelease: false
