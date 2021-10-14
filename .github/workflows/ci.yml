@@ -21,6 +21,7 @@ jobs:
       - name: get comment
         id: get_comment
         run: |
+          echo github.event.head_commit.message
           echo "${{ github.event.pull_request.title }}"
           echo "${{ github.event.pull_request.message }}"
           echo "${{github.event.commits[0].message}}"
@@ -29,6 +30,7 @@ jobs:
       - if: "!contains(steps.get_comment.outputs.commit_message, 'release')"
         run: |
           echo "Skip release"
+          echo ${{ steps.get_comment.outputs.commit_message }}    
 
       - if: "contains(steps.get_comment.outputs.commit_message, 'release')"
         run: |
