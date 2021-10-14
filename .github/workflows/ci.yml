@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - prod_test
 jobs:
   ci:
     runs-on: ${{ matrix.os }}
