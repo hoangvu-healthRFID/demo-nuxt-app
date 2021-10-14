@@ -27,5 +27,8 @@ describe('simple test', () => {
     expect(2+1).toBe(3);
   });
 
+  test('simple add 5', () => {
+    expect(2+1).toBe(3);
+  });
   
 })
