@@ -46,11 +46,11 @@ jobs:
       - if: "!contains(steps.get_comment.outputs.commit_message, 'release')"
         run: |
           echo "Skip release"
-          echo ${{ steps.get_comment.outputs.commit_message }}    
+          echo "${{ steps.get_comment.outputs.commit_message }}"
 
       - if: "contains(steps.get_comment.outputs.commit_message, 'release')"
         run: |
-          echo ${{ steps.get_comment.outputs.commit_message }}    
+          echo "${{ steps.get_comment.outputs.commit_message }}"
 
       # - name: test creat folder
       #   run: |
