@@ -19,6 +19,19 @@ jobs:
       - name: Checkout 🛎
         uses: actions/checkout@master
 
+      - name: Find Comment
+        uses: peter-evans/find-comment@v1.3.0
+        id: fc
+        with:
+          issue-number: 1
+          body-includes: release
+          direction: last  
+      - name: result
+        run: |
+          echo ${{ steps.fc.outputs.comment-id }}
+          echo ${{ steps.fc.outputs.comment-body }}
+          echo ${{ steps.fc.outputs.comment-author }}          
+
       - name: get comment
         id: get_comment
         run: |
