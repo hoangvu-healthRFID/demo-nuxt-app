@@ -30,5 +30,9 @@ describe('simple test', () => {
   test('simple add 5', () => {
     expect(2+1).toBe(3);
   });
+
+  test('simple add 6', () => {
+    expect(2+1).toBe(3);
+  });
   
 })
